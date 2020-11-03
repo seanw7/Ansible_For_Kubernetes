@@ -1,0 +1,43 @@
+---
+- hosts: localhost
+  gather_facts: false
+
+  vars:
+    # ansible_playbook_interpreter: "{{ ansible_playbook_python }}"
+    registry_image: registry:2
+
+
+  tasks:
+    - name: Ensure the Docker registry image is present
+      docker_image:
+        name: "{{ registry_image }}"
+        source: pull
+
+    - name: Run the Docker Registry container locally
+      docker_container:
+        name: registry
+        image: "{{ registry_image }}"
+        state: started
+        published_ports:
+          - 5000:5000
+
+  post_tasks:
+    - name: Log into Docker registry
+      docker_login:
+        registry: "{{ registry_url }}"
+        username: "{{ registry_username }}"
+        password: "{{ registry_password }}"
+      when:
+        - registry_url is defined and registry_url != ''
+        - registry_username is defined and registry_username != ''
+        - registry_password is defined and registry_password != ''
+
+    - name: Push Hello Go image to docker registry
+      docker_image:
+        name: "{{ image_name }}"
+        tag: "{{ image_tag }}"
+        repository: "localhost:5000/{{ image_name }}:{{ image_tag }}"
+        push: true
+        source: local
+
+        

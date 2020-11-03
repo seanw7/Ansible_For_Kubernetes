@@ -1,0 +1,7 @@
+---
+- name: Converge
+  hosts: all
+  tasks:
+    - name: "Include Ch2_hello-go-automation"
+      include_role:
+        name: "Ch2_hello-go-automation"

@@ -1,0 +1,21 @@
+---
+- hosts: localhost
+  gather_facts: false
+
+  vars:
+    image_name: hello-go
+    replicas: 10
+
+  tasks:
+    - name: Scale the hello-go deployment by strategic merge
+      k8s:
+        state: present
+        merge_type: strategic-merge
+        definition:
+          apiVersion: apps/v1
+          kind: deployment
+          metadata:
+            name: "{{ image_name }}"
+            namespace: default
+          spec:
+            replicas: "{{ replicas }}"
